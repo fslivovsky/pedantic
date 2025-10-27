@@ -308,11 +308,11 @@ std::pair<bool, std::optional<std::tuple<std::vector<int>, std::vector<int>,
             std::map<std::string, int>>>>
 DQBFSolver::get_counterexample(bool verbose) {
   counterexample_solver_->assume({-output_gate_id_});
-  counterexample_solver_->assume(permanent_assumptions_);
-  for (const auto& [exist_id, fire_var] : rule_fire_vars_) {
+  counterexample_solver_->assume(permanent_assumptions_); // These include fixed value_vars if a forcing clause was added.
+  for (const auto& [exist_id, fire_var] : rule_fire_vars_) { // Set default rules as "firing" in case no other rule fires
     counterexample_solver_->assume({fire_var});
   }
-  for (const auto& [exist_id, value_var] : value_vars_) {
+  for (const auto& [exist_id, value_var] : value_vars_) { // Set current value vars (can be negative literals)
     counterexample_solver_->assume({value_var});
   }
   counterexample_solver_->assume(expansion_variable_assignment_);
@@ -456,12 +456,7 @@ std::optional<std::vector<int>> DQBFSolver::compute_model_functions(
     return std::nullopt;
   }
 
-  std::vector<int> existential_assignment;
-  for (int exist_id : existential_var_ids_) {
-    existential_assignment.push_back(counterexample_solver_->val(exist_id));
-  }
-
-  return existential_assignment;
+  return counterexample_solver_->get_values(existential_var_ids_);
 }
 
 bool DQBFSolver::enumerate_and_compute_model_functions() {
