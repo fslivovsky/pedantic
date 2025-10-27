@@ -1,0 +1,3 @@
+[submodule "cadical-interface"]
+	path = cadical-interface
+	url = git@github.com:fslivovsky/cadical-interface.git
